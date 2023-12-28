@@ -1,0 +1,25 @@
+logging:
+  file:
+    name: app.log
+server:
+  error:
+    include-binding-errors: always
+    include-message: always
+    include-stacktrace: on_param
+  port: ${SERVER_PORT:8080}
+spring:
+  datasource:
+    username: ${DATASOURCE_USERNAME:sa}
+    password: ${DATASOURCE_PASSWORD:''}
+    url: ${DATASOURCE_URL:jdbc:h2:mem:testdb}
+  jpa:
+    database: ${JPA_DATABSE:h2}
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
