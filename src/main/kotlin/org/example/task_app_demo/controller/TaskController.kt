@@ -1,14 +1,12 @@
 package org.example.task_app_demo.controller
 
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotNull
 import org.example.task_app_demo.data.model.*
 import org.example.task_app_demo.data.model.util.JSONObjectWrapper
 import org.example.task_app_demo.data.model.util.Pagination
 import org.example.task_app_demo.data.model.util.SortType
 import org.example.task_app_demo.service.TaskService
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
