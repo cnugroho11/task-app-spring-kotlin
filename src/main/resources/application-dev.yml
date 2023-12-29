@@ -12,13 +12,14 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-
 server:
   error:
     include-message: always
     include-binding-errors: always
     include-stacktrace: on_param
-
 logging:
   file:
     name: app.log
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
