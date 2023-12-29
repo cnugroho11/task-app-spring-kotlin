@@ -45,6 +45,8 @@ class TaskService(private val repository: TaskRepository) {
     }
 
     fun getAllTasks(
+        isTaskOpen: Boolean?,
+        isReminderSet: Boolean?,
         page: Int,
         size: Int,
         sort: SortType
@@ -52,45 +54,33 @@ class TaskService(private val repository: TaskRepository) {
         var sortValue: Sort = Sort.by(Sort.Direction.ASC, "id")
         if (sort != SortType.ASC) {
             sortValue = Sort.by(Sort.Direction.DESC, "id")
+        }
+        val pageRequest: PageRequest = PageRequest.of(page - 1, size, sortValue)
+
+        println("ini isTaskOpen $isTaskOpen ini isReminderSet $isReminderSet")
+
+        if (isTaskOpen != null && isReminderSet != null) {
+            return repository
+                .findTasksByIsTaskOpenAndIsReminderSet(isTaskOpen, isReminderSet, pageRequest)
+                .stream()
+                .map(this::convertEntityToDto)
+                .collect(Collectors.toList())
+        } else if (isReminderSet != null) {
+            return repository
+                .findTasksByIsReminderSet(isReminderSet, pageRequest)
+                .stream()
+                .map(this::convertEntityToDto)
+                .collect(Collectors.toList())
+        } else if (isTaskOpen != null) {
+            return repository
+                .findTasksByIsTaskOpen(isTaskOpen, pageRequest)
+                .stream()
+                .map(this::convertEntityToDto)
+                .collect(Collectors.toList())
         }
 
         return repository
             .findAll(PageRequest.of(page - 1, size, sortValue))
-            .stream()
-            .map(this::convertEntityToDto)
-            .collect(Collectors.toList())
-    }
-
-    fun getAllOpenTasks(
-        page: Int,
-        size: Int,
-        sort: SortType
-    ): List<TaskDto> {
-        var sortValue: Sort = Sort.by(Sort.Direction.ASC, "id")
-        if (sort != SortType.ASC) {
-            sortValue = Sort.by(Sort.Direction.DESC, "id")
-        }
-
-        return repository
-            .findTasksByIsTaskOpen(isTaskOpen = true, PageRequest.of(page - 1, size, sortValue))
-            .stream()
-            .map(this::convertEntityToDto)
-            .collect(Collectors.toList())
-    }
-
-    fun getAllClosedTasks(
-        page: Int,
-        size: Int,
-        sort: SortType
-    ): List<TaskDto> {
-        var sortValue: Sort = Sort.by(Sort.Direction.ASC, "id")
-        if (sort != SortType.ASC) {
-            sortValue = Sort.by(Sort.Direction.DESC, "id")
-        }
-
-        val pageRequest: PageRequest = PageRequest.of(page - 1, size, sortValue)
-        return repository
-            .findTasksByIsTaskOpen(isTaskOpen = false, pageRequest)
             .stream()
             .map(this::convertEntityToDto)
             .collect(Collectors.toList())

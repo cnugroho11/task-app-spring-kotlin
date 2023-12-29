@@ -23,33 +23,17 @@ class TaskController(private val service: TaskService) {
 
     @GetMapping("tasks")
     fun getAllTasks(
+        @RequestParam(required = false, name = "isTaskOpen") isTaskOpen: Boolean?,
+        @RequestParam(required = false, name = "isReminderSet") isReminderSet: Boolean?,
         @RequestParam(required = false, defaultValue = "1") page: Int,
         @RequestParam(required = false, defaultValue = "10") size: Int,
         @RequestParam(required = false, defaultValue = "ASC") sort: SortType
     ): JSONObjectWrapper =
-        JSONObjectWrapper(service.getAllTasks(page, size, sort), HttpStatus.OK, Pagination(page, size, sort))
-
-    @GetMapping("task/open")
-    fun getAllOpenTasks(
-        @RequestParam(required = false, defaultValue = "1") page: Int,
-        @RequestParam(required = false, defaultValue = "10") size: Int,
-        @RequestParam(required = false, defaultValue = "ASC") sort: SortType
-    ): JSONObjectWrapper = JSONObjectWrapper(
-        service.getAllOpenTasks(page, size, sort),
-        HttpStatus.OK,
-        Pagination(1, 1, SortType.ASC)
-    )
-
-    @GetMapping("task/closed")
-    fun getAllClosedTasks(
-        @RequestParam(required = false, defaultValue = "1") page: Int,
-        @RequestParam(required = false, defaultValue = "10") size: Int,
-        @RequestParam(required = false, defaultValue = "ASC") sort: SortType
-    ): JSONObjectWrapper = JSONObjectWrapper(
-        service.getAllClosedTasks(page, size, sort),
-        HttpStatus.OK,
-        Pagination(page, size, sort)
-    )
+        JSONObjectWrapper(
+            service.getAllTasks(isTaskOpen, isReminderSet, page, size, sort),
+            HttpStatus.OK,
+            Pagination(page, size, sort)
+        )
 
     @GetMapping("task/{id}")
     fun getTaskById(@PathVariable id: Long): JSONObjectWrapper =
