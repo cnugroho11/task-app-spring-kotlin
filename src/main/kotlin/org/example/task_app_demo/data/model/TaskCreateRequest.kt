@@ -1,6 +1,7 @@
 package org.example.task_app_demo.data.model
 
 import jakarta.validation.constraints.NotBlank
+import org.example.task_app_demo.data.model.util.Priority
 import java.time.LocalDateTime
 
 data class TaskCreateRequest(

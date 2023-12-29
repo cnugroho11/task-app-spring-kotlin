@@ -1,12 +1,15 @@
 package org.example.task_app_demo.service
 
 import org.example.task_app_demo.data.Task
+import org.example.task_app_demo.data.model.util.SortType
 import org.example.task_app_demo.data.model.TaskCreateRequest
 import org.example.task_app_demo.data.model.TaskDto
 import org.example.task_app_demo.data.model.TaskUpdateRequest
 import org.example.task_app_demo.exception.BadRequestException
 import org.example.task_app_demo.exception.TaskNotFoundException
 import org.example.task_app_demo.repository.TaskRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.util.ReflectionUtils
 import java.lang.reflect.Field
@@ -41,14 +44,57 @@ class TaskService(private val repository: TaskRepository) {
         }
     }
 
-    fun getAllTasks(): List<TaskDto> =
-        repository.findAll().stream().map(this::convertEntityToDto).collect(Collectors.toList())
+    fun getAllTasks(
+        page: Int,
+        size: Int,
+        sort: SortType
+    ): List<TaskDto> {
+        var sortValue: Sort = Sort.by(Sort.Direction.ASC, "id")
+        if (sort != SortType.ASC) {
+            sortValue = Sort.by(Sort.Direction.DESC, "id")
+        }
 
-    fun getAllOpenTasks(): List<TaskDto> =
-        repository.queryAllOpenTasks().stream().map(this::convertEntityToDto).collect(Collectors.toList())
+        return repository
+            .findAll(PageRequest.of(page - 1, size, sortValue))
+            .stream()
+            .map(this::convertEntityToDto)
+            .collect(Collectors.toList())
+    }
 
-    fun getAllClosedTasks(): List<TaskDto> =
-        repository.queryAllClosedTasks().stream().map(this::convertEntityToDto).collect(Collectors.toList())
+    fun getAllOpenTasks(
+        page: Int,
+        size: Int,
+        sort: SortType
+    ): List<TaskDto> {
+        var sortValue: Sort = Sort.by(Sort.Direction.ASC, "id")
+        if (sort != SortType.ASC) {
+            sortValue = Sort.by(Sort.Direction.DESC, "id")
+        }
+
+        return repository
+            .findTasksByIsTaskOpen(isTaskOpen = true, PageRequest.of(page - 1, size, sortValue))
+            .stream()
+            .map(this::convertEntityToDto)
+            .collect(Collectors.toList())
+    }
+
+    fun getAllClosedTasks(
+        page: Int,
+        size: Int,
+        sort: SortType
+    ): List<TaskDto> {
+        var sortValue: Sort = Sort.by(Sort.Direction.ASC, "id")
+        if (sort != SortType.ASC) {
+            sortValue = Sort.by(Sort.Direction.DESC, "id")
+        }
+
+        val pageRequest: PageRequest = PageRequest.of(page - 1, size, sortValue)
+        return repository
+            .findTasksByIsTaskOpen(isTaskOpen = false, pageRequest)
+            .stream()
+            .map(this::convertEntityToDto)
+            .collect(Collectors.toList())
+    }
 
     fun getTaskById(id: Long): TaskDto {
         checkForTaskId(id)

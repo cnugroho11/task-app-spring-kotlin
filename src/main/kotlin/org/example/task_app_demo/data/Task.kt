@@ -3,7 +3,7 @@ package org.example.task_app_demo.data
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import org.example.task_app_demo.data.model.Priority
+import org.example.task_app_demo.data.model.util.Priority
 import java.time.LocalDateTime
 
 @Entity

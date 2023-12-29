@@ -1,9 +1,11 @@
 package org.example.task_app_demo.controller
 
 import jakarta.validation.Valid
-import org.example.task_app_demo.data.model.TaskCreateRequest
-import org.example.task_app_demo.data.model.TaskDto
-import org.example.task_app_demo.data.model.TaskUpdateRequest
+import jakarta.validation.constraints.NotNull
+import org.example.task_app_demo.data.model.*
+import org.example.task_app_demo.data.model.util.JSONObjectWrapper
+import org.example.task_app_demo.data.model.util.Pagination
+import org.example.task_app_demo.data.model.util.SortType
 import org.example.task_app_demo.service.TaskService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -21,28 +24,50 @@ import org.springframework.web.bind.annotation.RestController
 class TaskController(private val service: TaskService) {
 
     @GetMapping("tasks")
-    fun getAllTasks(): ResponseEntity<List<TaskDto>> = ResponseEntity(service.getAllTasks(), HttpStatus.OK)
+    fun getAllTasks(
+        @RequestParam(required = false, defaultValue = "1") page: Int,
+        @RequestParam(required = false, defaultValue = "10") size: Int,
+        @RequestParam(required = false, defaultValue = "ASC") sort: SortType
+    ): JSONObjectWrapper =
+        JSONObjectWrapper(service.getAllTasks(page, size, sort), HttpStatus.OK, Pagination(page, size, sort))
 
     @GetMapping("task/open")
-    fun getAllOpenTasks(): ResponseEntity<List<TaskDto>> = ResponseEntity(service.getAllClosedTasks(), HttpStatus.OK)
+    fun getAllOpenTasks(
+        @RequestParam(required = false, defaultValue = "1") page: Int,
+        @RequestParam(required = false, defaultValue = "10") size: Int,
+        @RequestParam(required = false, defaultValue = "ASC") sort: SortType
+    ): JSONObjectWrapper = JSONObjectWrapper(
+        service.getAllOpenTasks(page, size, sort),
+        HttpStatus.OK,
+        Pagination(1, 1, SortType.ASC)
+    )
 
     @GetMapping("task/closed")
-    fun getAllClosedTasks(): ResponseEntity<List<TaskDto>> = ResponseEntity(service.getAllClosedTasks(), HttpStatus.OK)
+    fun getAllClosedTasks(
+        @RequestParam(required = false, defaultValue = "1") page: Int,
+        @RequestParam(required = false, defaultValue = "10") size: Int,
+        @RequestParam(required = false, defaultValue = "ASC") sort: SortType
+    ): JSONObjectWrapper = JSONObjectWrapper(
+        service.getAllClosedTasks(page, size, sort),
+        HttpStatus.OK,
+        Pagination(page, size, sort)
+    )
 
     @GetMapping("task/{id}")
-    fun getTaskById(@PathVariable id: Long): ResponseEntity<TaskDto> =
-        ResponseEntity(service.getTaskById(id), HttpStatus.OK)
+    fun getTaskById(@PathVariable id: Long): JSONObjectWrapper =
+        JSONObjectWrapper(service.getTaskById(id), HttpStatus.OK)
 
     @PostMapping("task/create")
-    fun createTask(@Valid @RequestBody createRequest: TaskCreateRequest): ResponseEntity<TaskDto> =
-        ResponseEntity(service.createTask(createRequest), HttpStatus.CREATED)
+    fun createTask(@Valid @RequestBody createRequest: TaskCreateRequest): JSONObjectWrapper =
+        JSONObjectWrapper(service.createTask(createRequest), HttpStatus.CREATED)
 
     @PatchMapping("task/{id}")
     fun updateTask(
         @PathVariable id: Long,
         @Valid @RequestBody updateRequest: TaskUpdateRequest
-    ): ResponseEntity<TaskDto> = ResponseEntity(service.updateTask(id, updateRequest), HttpStatus.OK)
+    ): JSONObjectWrapper = JSONObjectWrapper(service.updateTask(id, updateRequest), HttpStatus.OK)
 
     @DeleteMapping("task/{id}")
-    fun deleteTask(@PathVariable id: Long): ResponseEntity<String> = ResponseEntity(service.deleteTask(id), HttpStatus.OK)
+    fun deleteTask(@PathVariable id: Long): JSONObjectWrapper =
+        JSONObjectWrapper(service.deleteTask(id), HttpStatus.OK)
 }
